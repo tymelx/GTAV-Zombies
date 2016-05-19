@@ -85,7 +85,7 @@ namespace Zombies
                 if (ped.IsSittingInVehicle())
                 {
                     //ped.CurrentVehicle.EngineHealth = 0;
-                    ped.CurrentVehicle.HandbrakeOn = true;
+                    ped.MaxDrivingSpeed = 0;
                 }
             }
         }
@@ -142,17 +142,17 @@ namespace Zombies
                     GTA.Native.Function.Call(GTA.Native.Hash.SET_VEHICLE_DENSITY_MULTIPLIER_THIS_FRAME, 0.0F);
                     GTA.Native.Function.Call(GTA.Native.Hash.SET_RANDOM_VEHICLE_DENSITY_MULTIPLIER_THIS_FRAME, 0.0F);
 
-                    Ped[] nearByPeople = World.GetNearbyPeds(Game.Player.Character, 400);
+                    Ped[] nearByPeople = World.GetNearbyPeds(Game.Player.Character, 800);
                     for (int i = 0; i < nearByPeople.Length; i++)
                     {
-                        Vehicle V = World.GetClosestVehicle(Game.Player.Character.Position, 400);
+                        Vehicle V = World.GetClosestVehicle(Game.Player.Character.Position, 600);
                         Ped DriverZ = V.GetPedOnSeat(VehicleSeat.Driver);
                         if (DriverZ != null && DriverZ.IsPlayer == false)
                         {
                             Zombify(DriverZ);
 
                             //Get the 5 closest people by the driver we just zombied
-                            Ped[] peopleByTheDriver = World.GetNearbyPeds(DriverZ, 300);
+                            Ped[] peopleByTheDriver = World.GetNearbyPeds(DriverZ, 500);
                             int MaxArrSize = peopleByTheDriver.Length;
                             if (MaxArrSize > 5)
                             {
