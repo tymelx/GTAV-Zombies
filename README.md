@@ -4,9 +4,13 @@ ScriptHookVDotNet plugin for GTAV - Modifies the existing plugin created by HIpp
 To Install:
 
 Install ScriptHookV
+
 Install ScriptHookVDotNet
+
 Install NativeUI
+
 Download Zombies.dll from /bin/Release/ to your /scripts folder (create it if you dont have it)
+
 Press "Y" in game to bring up menu
 
 Always open to ideas!
