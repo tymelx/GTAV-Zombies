@@ -6,43 +6,29 @@ using System.Text;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using NativeUI;
 
 namespace Zombies
 {
     public class Zombies : Script
     {
-        Random rnd = new Random();
-        public bool Started = false;
+        public static Random rnd = new Random();
+        public static bool Started = false;
 
         public Zombies()
         {
-            Tick += OnTick;
-            KeyDown += OnKeyDown;
+            
         }
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Y)
-            {
-                if (Started)
-                {
-                    StopZombies();
-                }
-                else
-                {
-                    StartZombies();
-                }
-            }
-        }
-
-        private void StartZombies()
+        public static void StartZombies()
         {
             UI.Notify("Zombiez activated");
             Started = true;
             World.SetBlackout(true);
+            Game.Player.WantedLevel = 0;
         }
 
-        private void StopZombies()
+        public static void StopZombies()
         {
             UI.Notify("Zombiez should stop now");
             Started = false;
@@ -50,81 +36,7 @@ namespace Zombies
             GTA.Native.Function.Call(GTA.Native.Hash.SET_MAX_WANTED_LEVEL, 5);
         }
 
-        private void Zombify(Ped ped)
-        {
-            if (ped.IsPlayer == false)
-            {
-                if (!Function.Call<bool>(Hash.HAS_CLIP_SET_LOADED, new InputArgument[] { "move_m@drunk@verydrunk" }))
-                {
-                    Function.Call(Hash.REQUEST_CLIP_SET, new InputArgument[] { "move_m@drunk@verydrunk" });
-                }
-
-                if (Function.Call<bool>(Hash.HAS_CLIP_SET_LOADED, new InputArgument[] { "move_m@drunk@verydrunk" }))
-                {
-                    Function.Call(Hash.SET_PED_MOVEMENT_CLIPSET, new InputArgument[] { ped.Handle, "move_m@drunk@verydrunk", 1048576000 });
-                }
-
-                Function.Call(Hash.STOP_PED_SPEAKING, new InputArgument[] { ped.Handle, true });
-                Function.Call(Hash.DISABLE_PED_PAIN_AUDIO, new InputArgument[] { ped.Handle, true });
-
-                GTA.Native.Function.Call(GTA.Native.Hash.SET_BLOCKING_OF_NON_TEMPORARY_EVENTS, ped, 1);
-                GTA.Native.Function.Call(GTA.Native.Hash.SET_PED_FLEE_ATTRIBUTES, ped, 0, 0);
-                GTA.Native.Function.Call(GTA.Native.Hash.SET_PED_COMBAT_ATTRIBUTES, ped, 46, 1);
-                // GTA.Native.Function.Call(GTA.Native.Hash._SET_MOVE_SPEED_MULTIPLIER, ped,9999.6F);		 
-
-                ped.Task.GoTo(Game.Player.Character.Position, true);
-                ped.AlwaysKeepTask = true;
-                ped.IsEnemy = true;
-                ped.Health = 3000;
-
-                //Apply the blood to the ped!
-                GTA.Native.Function.Call(GTA.Native.Hash.APPLY_PED_DAMAGE_PACK, ped, "BigHitByVehicle", 0.0, 9.0);
-                GTA.Native.Function.Call(GTA.Native.Hash.APPLY_PED_DAMAGE_PACK, ped, "SCR_Dumpster", 0.0, 9.0);
-                GTA.Native.Function.Call(GTA.Native.Hash.APPLY_PED_DAMAGE_PACK, ped, "SCR_Torture", 0.0, 9.0);
-
-                if (ped.IsSittingInVehicle())
-                {
-                    //ped.CurrentVehicle.EngineHealth = 0;
-                    ped.MaxDrivingSpeed = 0;
-                }
-            }
-        }
-
-        private void SPZombified()
-        {
-            for (int z = 0; z < rnd.Next(1, 9); z++)
-            {
-                if (GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_PED)
-                    || GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_DRIVER)
-                    || GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_COPS)
-                    || GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_BIKE_RIDER)
-                )
-                {
-                    Vector3 SpawnPoint = new Vector3();
-
-                    //More zombies!
-                    if (z == 1)
-                    {
-                        SpawnPoint = Game.Player.Character.Position.Around(100);
-                    }
-                    else
-                    {
-                        SpawnPoint = SpawnPoint.Around(3);
-                    }
-
-                    SpawnPoint.Z = GTA.World.GetGroundHeight(SpawnPoint);
-                    SpawnPoint.Z -= 0.9f;
-
-                    Ped RandZomb = World.CreatePed(PedHash.Business01AMY, SpawnPoint);
-                    Zombify(RandZomb);
-                    RandZomb.MarkAsNoLongerNeeded();
-                }
-
-                Wait(0);
-            }
-        }
-
-        private void OnTick(object sender, EventArgs e)
+        public static void ProcessTick()
         {
             if (Started)
             {
@@ -142,40 +54,40 @@ namespace Zombies
                     GTA.Native.Function.Call(GTA.Native.Hash.SET_VEHICLE_DENSITY_MULTIPLIER_THIS_FRAME, 0.0F);
                     GTA.Native.Function.Call(GTA.Native.Hash.SET_RANDOM_VEHICLE_DENSITY_MULTIPLIER_THIS_FRAME, 0.0F);
 
-                    Ped[] nearByPeople = World.GetNearbyPeds(Game.Player.Character, 800);
+                    Ped[] nearByPeople = World.GetNearbyPeds(Game.Player.Character, 10000);
                     for (int i = 0; i < nearByPeople.Length; i++)
                     {
-                        Vehicle V = World.GetClosestVehicle(Game.Player.Character.Position, 600);
-                        Ped DriverZ = V.GetPedOnSeat(VehicleSeat.Driver);
-                        if (DriverZ != null && DriverZ.IsPlayer == false)
-                        {
-                            Zombify(DriverZ);
+                        //Vehicle V = World.GetClosestVehicle(Game.Player.Character.Position, 4000);
+                        //Ped DriverZ = V.GetPedOnSeat(VehicleSeat.Driver);
+                        //if (DriverZ != null && DriverZ.IsPlayer == false)
+                        //{
+                        //    Zombify(DriverZ);
 
-                            //Get the 5 closest people by the driver we just zombied
-                            Ped[] peopleByTheDriver = World.GetNearbyPeds(DriverZ, 500);
-                            int MaxArrSize = peopleByTheDriver.Length;
-                            if (MaxArrSize > 5)
-                            {
-                                MaxArrSize = 5;
-                            }
+                        //    //Get the 5 closest people by the driver we just zombied
+                        //    Ped[] peopleByTheDriver = World.GetNearbyPeds(DriverZ, 500);
+                        //    int MaxArrSize = peopleByTheDriver.Length;
+                        //    if (MaxArrSize > 5)
+                        //    {
+                        //        MaxArrSize = 5;
+                        //    }
 
-                            for (int j = 0; j < MaxArrSize; j++)
-                            {
-                                Zombify(peopleByTheDriver[j]);
-                                //if (peopleByTheDriver[j].IsPlayer == false)
-                                //{
-                                //    if (nearByPeople[i].Exists() && nearByPeople[i].IsAlive && !nearByPeople[i].IsRagdoll && !nearByPeople[i].IsGettingUp && nearByPeople[i].IsHuman
-                                //        && !GTA.Native.Function.Call<bool>(GTA.Native.Hash.IS_PED_IN_GROUP, nearByPeople[i])
-                                //    )
-                                //    {
-                                //        Zombify(peopleByTheDriver[j]);
-                                //    }
-                                //}
+                        //    for (int j = 0; j < MaxArrSize; j++)
+                        //    {
+                        //        Zombify(peopleByTheDriver[j]);
+                        //        //if (peopleByTheDriver[j].IsPlayer == false)
+                        //        //{
+                        //        //    if (nearByPeople[i].Exists() && nearByPeople[i].IsAlive && !nearByPeople[i].IsRagdoll && !nearByPeople[i].IsGettingUp && nearByPeople[i].IsHuman
+                        //        //        && !GTA.Native.Function.Call<bool>(GTA.Native.Hash.IS_PED_IN_GROUP, nearByPeople[i])
+                        //        //    )
+                        //        //    {
+                        //        //        Zombify(peopleByTheDriver[j]);
+                        //        //    }
+                        //        //}
 
-                                //Wait(0);
-                            }
+                        //        _Wait();
+                        //    }
 
-                        }
+                        //}
 
                         if (nearByPeople[i].Exists() && nearByPeople[i].IsAlive && !nearByPeople[i].IsRagdoll && !nearByPeople[i].IsGettingUp && nearByPeople[i].IsHuman
                             && !GTA.Native.Function.Call<bool>(GTA.Native.Hash.IS_PED_IN_GROUP, nearByPeople[i])
@@ -205,13 +117,102 @@ namespace Zombies
                                 GTA.Native.Function.Call(GTA.Native.Hash.TASK_CLIMB, nearByPeople[i], true);
                                 nearByPeople[i].ApplyForceRelative(new GTA.Math.Vector3(0, 4, 4));
                             }
-                            Wait(0);
+
+                            Main._Wait(0);
                         }
                     }
                 }
                 else
                 {
                     StopZombies();
+                }
+            }
+        }
+
+        private static void SPZombified()
+        {
+            for (int z = 0; z < rnd.Next(1, 9); z++)
+            {
+                if (GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_PED)
+                    || GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_DRIVER)
+                    || GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_COPS)
+                    || GTA.Native.Function.Call<bool>(GTA.Native.Hash.CAN_CREATE_RANDOM_BIKE_RIDER)
+                )
+                {
+                    Vector3 SpawnPoint = new Vector3();
+
+                    //More zombies!
+                    if (z == 1)
+                    {
+                        SpawnPoint = Game.Player.Character.Position.Around(100);
+                    }
+                    else
+                    {
+                        SpawnPoint = SpawnPoint.Around(3);
+                    }
+
+                    SpawnPoint.Z = GTA.World.GetGroundHeight(SpawnPoint);
+                    SpawnPoint.Z -= 0.9f;
+
+                    Ped RandZomb = World.CreatePed(PedHash.Business01AMY, SpawnPoint);
+                    Zombify(RandZomb);
+                    RandZomb.MarkAsNoLongerNeeded();
+                }
+
+                Main._Wait(0);
+            }
+        }
+
+        private static void Zombify(Ped ped)
+        {
+            if (ped.IsPlayer == false)
+            {
+                if (ped.IsInPlane)
+                {
+                    ped.Task.GoTo(Game.Player.Character.Position, true);
+                }
+                else
+                {
+                    if (!Function.Call<bool>(Hash.HAS_CLIP_SET_LOADED, new InputArgument[] { "move_m@drunk@verydrunk" }))
+                    {
+                        Function.Call(Hash.REQUEST_CLIP_SET, new InputArgument[] { "move_m@drunk@verydrunk" });
+                    }
+
+                    if (Function.Call<bool>(Hash.HAS_CLIP_SET_LOADED, new InputArgument[] { "move_m@drunk@verydrunk" }))
+                    {
+                        Function.Call(Hash.SET_PED_MOVEMENT_CLIPSET, new InputArgument[] { ped.Handle, "move_m@drunk@verydrunk", 1048576000 });
+                    }
+
+                    Function.Call(Hash.STOP_PED_SPEAKING, new InputArgument[] { ped.Handle, true });
+                    Function.Call(Hash.DISABLE_PED_PAIN_AUDIO, new InputArgument[] { ped.Handle, true });
+
+                    GTA.Native.Function.Call(GTA.Native.Hash.SET_BLOCKING_OF_NON_TEMPORARY_EVENTS, ped, 1);
+                    GTA.Native.Function.Call(GTA.Native.Hash.SET_PED_FLEE_ATTRIBUTES, ped, 0, 0);
+                    GTA.Native.Function.Call(GTA.Native.Hash.SET_PED_COMBAT_ATTRIBUTES, ped, 46, 1);
+                    // GTA.Native.Function.Call(GTA.Native.Hash._SET_MOVE_SPEED_MULTIPLIER, ped,9999.6F);		 
+
+                    ped.Task.GoTo(Game.Player.Character.Position, true);
+                    ped.AlwaysKeepTask = true;
+                    ped.IsEnemy = true;
+                    ped.Health = 3000;
+
+                    //Apply the blood to the ped!
+                    GTA.Native.Function.Call(GTA.Native.Hash.APPLY_PED_DAMAGE_PACK, ped, "BigHitByVehicle", 0.0, 9.0);
+                    GTA.Native.Function.Call(GTA.Native.Hash.APPLY_PED_DAMAGE_PACK, ped, "SCR_Dumpster", 0.0, 9.0);
+                    GTA.Native.Function.Call(GTA.Native.Hash.APPLY_PED_DAMAGE_PACK, ped, "SCR_Torture", 0.0, 9.0);
+
+                    if (ped.IsSittingInVehicle())
+                    {
+                        if ((rnd.Next(1, 15) == 7))
+                        {
+                            ped.CurrentVehicle.EngineHealth = 0;
+                            ped.CurrentVehicle.StartAlarm();
+                        }
+
+                        //ped.CurrentVehicle.EngineHealth = 0;
+                        ped.MaxDrivingSpeed = 0;
+
+                    }
                 }
             }
         }

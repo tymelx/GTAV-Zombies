@@ -1,0 +1,8 @@
+C:\Games\GTAVMods\Zombies\Zombies\bin\Debug\Zombies.dll
+C:\Games\GTAVMods\Zombies\Zombies\bin\Debug\Zombies.pdb
+C:\Games\GTAVMods\Zombies\Zombies\bin\Debug\NativeUI.dll
+C:\Games\GTAVMods\Zombies\Zombies\bin\Debug\ScriptHookVDotNet.dll
+C:\Games\GTAVMods\Zombies\Zombies\bin\Debug\ScriptHookVDotNet.xml
+C:\Games\GTAVMods\Zombies\Zombies\obj\Debug\Zombies.csprojResolveAssemblyReference.cache
+C:\Games\GTAVMods\Zombies\Zombies\obj\Debug\Zombies.dll
+C:\Games\GTAVMods\Zombies\Zombies\obj\Debug\Zombies.pdb
