@@ -14,6 +14,8 @@ namespace Zombies
     {
         //Menu components
         private static MenuPool _menuPool;
+        public Zombies zombieMode = new Zombies();
+        public AngryCars angryCarsMode = new AngryCars();
 
         public Main()
         {
@@ -36,25 +38,61 @@ namespace Zombies
 
         public void CreateModeMenu(UIMenu menu)
         {
-            var zombies = new List<dynamic>
+            menu.AddItem(new UIMenuListItem("Zombie Invasion", new List<dynamic>
             {
-                "On",
-                "Off"
-            };
+                "Off",
+                "On"
+            }, 0));
 
-            var newitem = new UIMenuListItem("Zombie Invasion", zombies, 0);
-            menu.AddItem(newitem);
+            menu.AddItem(new UIMenuListItem("Angry Cars", new List<dynamic>
+            {
+                "Off",
+                "On"
+            }, 0));
+
             menu.OnListChange += (sender, item, index) =>
             {
+                UI.Notify(item.Text);
                 if (index == 0)
                 {
-                    Zombies.StartZombies();
+                    if (item.Text == "Zombie Invasion")
+                    {
+                        zombieMode.Stop();
+                    }
+                    else if (item.Text == "Angry Cars")
+                    {
+                        angryCarsMode.Stop();
+                    }
                 }
                 else
                 {
-                    Zombies.StopZombies();
+                    StopAllModes(menu, item.Text);
+
+                    if (item.Text == "Zombie Invasion")
+                    {
+                        zombieMode.Start();
+                    }
+                    else if (item.Text == "Angry Cars")
+                    {
+                        angryCarsMode.Start();
+                    }
                 }
             };
+        }
+
+        private void StopAllModes(UIMenu menu, string mode)
+        {
+            zombieMode.Stop(false);
+            if (mode != "Zombie Invasion")
+            {
+                ((UIMenuListItem)(menu.MenuItems[0])).Index = 0;
+            }
+
+            angryCarsMode.Stop(false);
+            if (mode != "Angry Cars")
+            {
+                ((UIMenuListItem)menu.MenuItems[1]).Index = 0;
+            }
         }
 
         public static void _Wait(int ms)
@@ -68,7 +106,8 @@ namespace Zombies
             _menuPool.ProcessMenus();
 
             //Process all modes
-            Zombies.ProcessTick();
+            zombieMode.ProcessTick();
+            angryCarsMode.ProcessTick();
         }
     }
 }

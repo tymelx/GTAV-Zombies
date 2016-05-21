@@ -47,8 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Modes\AngryCars.cs" />
+    <Compile Include="Core\Interfaces\IGameMode.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Zombies.cs" />
+    <Compile Include="Core\Modes\Zombies.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

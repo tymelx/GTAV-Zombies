@@ -5,3 +5,4 @@ C:\Games\GTAVMods\Zombies\Zombies\bin\Release\ScriptHookVDotNet.dll
 C:\Games\GTAVMods\Zombies\Zombies\bin\Release\ScriptHookVDotNet.xml
 C:\Games\GTAVMods\Zombies\Zombies\obj\Release\Zombies.dll
 C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto V\scripts\Zombies.dll
+C:\Games\GTAVMods\Zombies\Zombies\obj\Release\Zombies.csprojResolveAssemblyReference.cache

@@ -7,10 +7,11 @@ using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using NativeUI;
+using Zombies.Core.Interfaces;
 
 namespace Zombies
 {
-    public class Zombies : Script
+    public class Zombies : Script, IGameMode
     {
         public static Random rnd = new Random();
         public static bool Started = false;
@@ -20,23 +21,31 @@ namespace Zombies
             
         }
 
-        public static void StartZombies()
+        public void Start(bool notify = true)
         {
-            UI.Notify("Zombiez activated");
+            if (notify)
+            {
+                UI.Notify("Zombiez activated");
+            }
+
             Started = true;
             World.SetBlackout(true);
             Game.Player.WantedLevel = 0;
         }
 
-        public static void StopZombies()
+        public void Stop(bool notify = true)
         {
-            UI.Notify("Zombiez should stop now");
+            if (notify)
+            {
+                UI.Notify("Zombiez should stop now");
+            }
+            
             Started = false;
             World.SetBlackout(false);
             GTA.Native.Function.Call(GTA.Native.Hash.SET_MAX_WANTED_LEVEL, 5);
         }
 
-        public static void ProcessTick()
+        public void ProcessTick()
         {
             if (Started)
             {
@@ -124,12 +133,12 @@ namespace Zombies
                 }
                 else
                 {
-                    StopZombies();
+                    Stop();
                 }
             }
         }
 
-        private static void SPZombified()
+        private void SPZombified()
         {
             for (int z = 0; z < rnd.Next(1, 9); z++)
             {
@@ -163,7 +172,7 @@ namespace Zombies
             }
         }
 
-        private static void Zombify(Ped ped)
+        private void Zombify(Ped ped)
         {
             if (ped.IsPlayer == false)
             {
