@@ -13,8 +13,8 @@ namespace Zombies
 {
     public class Zombies : Script, IGameMode
     {
-        public static Random rnd = new Random();
-        public static bool Started = false;
+        public Random rnd = new Random();
+        public bool Started = false;
 
         public Zombies()
         {
